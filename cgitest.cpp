@@ -1,10 +1,10 @@
 /*
     CGITEST OpenSceneGraph Version 3.6.5
     Adapted by DJA from EFS cgi.cpp
-    
+
     stand alone test to generate an image from a save file
 	to compile: make -f Makefile.cgitest cgitest
-	
+
 	Note: HUD, asi, alt, compass, glib removed
 	DJA 11 Nov 2023
 */
@@ -54,7 +54,7 @@
 #include <osg/AlphaFunc>
 
 /*
-    Flt Sim headers. Note, change default packing on Windows for UDP structs arriving from Linux. 
+    Flt Sim headers. Note, change default packing on Windows for UDP structs arriving from Linux.
 */
 #ifdef WIN32
 #pragma pack(push,2)
@@ -172,8 +172,8 @@ void LoadRestoreFile(char Filename[])
 {
     FILE *f;
 
-    f = fopen(Filename, "rb"); 
-    if (f == NULL) 
+    f = fopen(Filename, "rb");
+    if (f == NULL)
     {
         printf("Error opening file %s\n", Filename);
         exit(-1);
@@ -192,17 +192,17 @@ osg::ref_ptr<osg::LightSource> createSunLight(void)
     /*
     will have to create a function to dynamically alter the light levels
     dependent on the TimeOfDay. Could just do something similar to this func.
-    
+
     Or use sunLight as declared in main and adjust its properites - better.
     eg. osg::Light* dynamicSunLight = sunLight->getLight()
     dynamicSunLight->setPosition
     dynamicSunLight->setAmbient
     dynamicSunLight->setDiffuse
     sunLight->setLight(dynamicSunLight);
-    
+
     Same sort of thing for overall ambient light intensity in LightModel
     */
-    
+
     osg::ref_ptr<osg::LightSource> sunLightSource = new osg::LightSource;
     osg::ref_ptr<osg::Light> sunLight = sunLightSource->getLight();
     sunLight->setPosition( osg::Vec4( -10000.0f, -10000.0f, 10000.0f, 1.0f ) );  /* not directly overhead */
@@ -210,7 +210,7 @@ osg::ref_ptr<osg::LightSource> createSunLight(void)
     sunLight->setDiffuse( osg::Vec4( 0.8f, 0.8f, 0.8f, 1.0f ) );
     sunLightSource->setLight( sunLight.get() );
     sunLightSource->setLocalStateSetModes( osg::StateAttribute::ON );
-    
+
     // Forcing OVERRIDE for lighting - otherwise trees in terrain remain unlit!
     // The trees are actually "extern" refs from main terrain db, so it is
     // likely that this is the source of unlit trees
@@ -220,7 +220,7 @@ osg::ref_ptr<osg::LightSource> createSunLight(void)
     lightModel->setAmbientIntensity(osg::Vec4(1.0f,1.0f,1.0f,1.0f));
     sunLightSource->getOrCreateStateSet()->setAttribute( lightModel.get() );
 
-    return sunLightSource;    
+    return sunLightSource;
 }
 
 /* ---------------------------------------------------- */
@@ -245,7 +245,7 @@ int main (int argc, char* argv[])
 
 	// Setting up a file paths for databases/models - and appending to the file path list
     osgDB::setDataFilePathList(pathList);
-    
+
     // Load the 3d models. Uses "smart" pointers that manage memory better.
     osg::ref_ptr<osg::Node> TerrainNode = osgDB::readNodeFile(filename);
     if (!TerrainNode)
@@ -253,7 +253,7 @@ int main (int argc, char* argv[])
         std::cerr << "Failed to load terrain database!\n";
         exit(1);
     }
-    
+
     // Load the sky model - the thin cloud layer
     osg::ref_ptr<osg::Node> SkyNode = osgDB::readNodeFile("skydome.osgt");
     if (!SkyNode)
@@ -261,7 +261,7 @@ int main (int argc, char* argv[])
         std::cerr << "Failed to load sky database!\n";
         exit(1);
     }
-    
+
     // Using a sky box until I get fog working on clear buffer properly
     osg::ref_ptr<osg::Node> SkyBoxNode = osgDB::readNodeFile("models/skyb.ac");
     if (!SkyBoxNode)
@@ -269,40 +269,40 @@ int main (int argc, char* argv[])
         std::cerr << "Failed to load skybox database!\n";
         exit(1);
     }
-    
+
     // Set up a transform node to move the surrounding skybox a little lower
     // This stops the band of different colour (clear colour) showing through.
     osg::ref_ptr<osg::PositionAttitudeTransform> SkyBoxXForm = new osg::PositionAttitudeTransform();
     SkyBoxXForm->addChild(SkyBoxNode.get());
     osg::Vec3 SkyBoxPosit(0,0,-10000);
     SkyBoxXForm->setPosition( SkyBoxPosit );
-    
+
     // Create blue sky - sets the clear buffer bits
     osg::ref_ptr<osg::ClearNode> backdrop = new osg::ClearNode;
     backdrop->setClearColor(osg::Vec4(0.8f,0.8f,1.0f,1.0f));
-      
-    // Enable fogging     
+
+    // Enable fogging
     fog->setMode(osg::Fog::EXP);
     fog->setDensity(0.00005f);
-    fog->setColor(osg::Vec4d(0.8,0.8,0.8,1.0)); 
+    fog->setColor(osg::Vec4d(0.8,0.8,0.8,1.0));
     fog->setStart(0.0f);     // only for LINEAR fog
     fog->setEnd(visibility); // only for LINEAR fog
-    
+
     // Fog node state
     osg::ref_ptr<osg::StateSet> fogStateSet = new osg::StateSet();
-    fogStateSet->setAttribute(fog.get(), osg::StateAttribute::ON); 
-    fogStateSet->setMode(GL_FOG, osg::StateAttribute::ON | osg::StateAttribute::OVERRIDE); 
-    
+    fogStateSet->setAttribute(fog.get(), osg::StateAttribute::ON);
+    fogStateSet->setMode(GL_FOG, osg::StateAttribute::ON | osg::StateAttribute::OVERRIDE);
+
     //
     // Populate the scene graph. Could layout the graph a little more thoughfully.
     //
     SceneRoot->setStateSet(fogStateSet.get());
-   
+
     sunLight = createSunLight();
     osg::ref_ptr<osg::Group> LitObjects = new osg::Group();
     LitObjects->addChild(sunLight.get());
     sunLight->addChild(TerrainNode.get());
-    
+
     SceneRoot->addChild(SkyBoxXForm.get());
     SceneRoot->addChild(backdrop.get());
     SceneRoot->addChild(SkyNode.get());
@@ -313,13 +313,13 @@ int main (int argc, char* argv[])
     osg::Matrixd cameraRotation;
     osg::Matrixd cameraOffsetRotation;
     osg::Matrixd cameraTrans;
-    
+
     // Camera offset attitude
     cameraOffsetRotation.makeRotate(
         osg::DegreesToRadians(0.0), osg::Vec3(0,1,0), // roll
         osg::DegreesToRadians(0.0), osg::Vec3(1,0,0) , // pitch
-        osg::DegreesToRadians(ChannelOffset), osg::Vec3(0,0,1) ); // heading 
-   	
+        osg::DegreesToRadians(ChannelOffset), osg::Vec3(0,0,1) ); // heading
+
     // Configure UDP comms
     s = socket_init();
     if (s == EXIT_FAILURE)
@@ -327,46 +327,46 @@ int main (int argc, char* argv[])
       printf("Unable to initialise socket\n");
       exit(1);
     }
-    
+
     // Point the scene graph root to the viewer
-    
+
     viewer.setSceneData( SceneRoot.get() );
-    
+
     viewer.realize();
-    
+
     // Many viewer settings only work once viewer.realize() has been called
 
     // switch off mouse cursor for all windows (we only use one)
 
     osgViewer::Viewer::Windows windows; // vector of GraphicsWindow
     viewer.getWindows(windows); // in ViewerBase (which Viewer inherits), get the list of GWs
-    windows[0]->useCursor(false); 
+    windows[0]->useCursor(false);
     //for(osgViewer::Viewer::Windows::iterator itr = windows.begin(); itr != windows.end(); ++itr) {
     //  (*itr)->useCursor(false);
     //}
-    
+
     // Field Of View settings
-    
+
     // In Performer the near and far clipping planes = 5.0 and 50000.0 resp.
     // Performer Hfov and Vfov = 63.1 and 43.0 resp.
     // For OSG far set to be 200000 so sky box is drawn. This area needs improvement.
     // OSG 2.0 + doesnt provide a way to set fovx and fovy, so we use standare OpenGL interface.
     // see gluPerspective. fovy, aspect ratio, near, far
     // So OSG aspect ratio of wants tan(fovx/2)/tan(fovy/2) = 1.55877  1.599070
-    
+
     viewer.getCamera()->setProjectionMatrixAsPerspective( 40.0, 1.599070, 1.0, 200000.0 );
 
     // Stop OSG optimising near and far clipping planes
 
     viewer.getCamera()->setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
-    
+
     // Disable small feature culling so we can see airfield lights from a distance
 
     osg::CullSettings::CullingMode cm = viewer.getCamera()->getCullingMode();
     cm &= ~(osg::CullSettings::SMALL_FEATURE_CULLING);
     viewer.getCamera()->setCullingMode(cm);
     viewer.addEventHandler(new osgViewer::StatsHandler); // ***
-    
+
     //
     // Enter rendering loop
     //
@@ -374,18 +374,18 @@ int main (int argc, char* argv[])
     {
         // read pkt from flight model
         socket_get_data();
-        
+
         // Code to manually position and orient the camera. Move to function for neatness
         cameraTrans.makeTranslate( vecPosAircraft.x(), vecPosAircraft.y(), vecPosAircraft.z() ); // x = +ve RIGHT : y = +ve FORWARDS : Z = +ve UP
         cameraRotation.makeRotate(
             osg::DegreesToRadians(vecAttAircraft.z()), osg::Vec3(0,1,0),   // roll
             osg::DegreesToRadians(vecAttAircraft.y()), osg::Vec3(1,0,0) ,  // pitch
-            osg::DegreesToRadians(vecAttAircraft.x()), osg::Vec3(0,0,1) ); // yaw 
+            osg::DegreesToRadians(vecAttAircraft.x()), osg::Vec3(0,0,1) ); // yaw
         myCameraMatrix = (cameraOffsetRotation * cameraRotation) * cameraTrans;
         osg::Matrixd i = myCameraMatrix.inverse(myCameraMatrix);
         osg::Matrixd xxx = osg::Matrixd::rotate( -M_PI*0.5, osg::Vec3(1,0,0) );
         viewer.getCamera()->setViewMatrix(i * xxx);
-        
+
         // Fire off the cull and draw traversals of the scene
         viewer.frame();
     }
@@ -417,7 +417,7 @@ int SelectDatabase ( char *argv[] )
         RunwayY  =        0.0;
         RunwayZ  =        0.0;
         RunwayRotation =  0.0;			/* 360 degrees */
-        
+
         setname("long_bristol.flt");
         #ifdef WIN32
           pathList.push_back("c:\\SIM-DATA\\databases\\long_bristol\\flt_files");
@@ -460,7 +460,7 @@ int SelectDatabase ( char *argv[] )
     {
         return -1;
     }
-    
+
     #ifdef WIN32
       pathList.push_back("c:\\SIM-DATA\\multigen");
       pathList.push_back("c:\\SIM-DATA\\multigen\\models");
@@ -470,7 +470,7 @@ int SelectDatabase ( char *argv[] )
       pathList.push_back("/usr/share/SIM-DATA/multigen/models");
       pathList.push_back("/usr/share/SIM-DATA/multigen/texture");
     #endif
-    
+
     return 0;
 }
 
@@ -491,18 +491,18 @@ void SetTime( float hour, float angle )
     else
       if (hour > 18.0)
         d = 0.0;
-      else 
+      else
         d = 1.0 - fabs(12.0 - hour) / 6.0;
-    
-    
+
+
     osg::ref_ptr<osg::Light> UpdatedLight = sunLight->getLight();
-    
+
     // Alter position of sun?
     //UpdatedLight->setPosition( osg::Vec4( 0.0f, 0.0f, 10000.0f, 1.0f ) );
-    
+
     UpdatedLight->setAmbient( osg::Vec4( d, d, 0.8f*d, 1.0f ) );
     UpdatedLight->setDiffuse( osg::Vec4( d, d, 0.8f*d, 1.0f ) );
-    
+
     sunLight->setLight( UpdatedLight.get() );
     sunLight->setLocalStateSetModes( osg::StateAttribute::ON );
     sunLight->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::ON | osg::StateAttribute::OVERRIDE);
@@ -550,7 +550,7 @@ void set_vis( float vis )
     density = 3.2f/vis;
     fog->setDensity(density);
 
-/*   For exp2 fog....    
+/*   For exp2 fog....
     density = 2.6f/vis;
     fog->setDensity(density);    */
 
@@ -570,7 +570,7 @@ void DecodeIosPkt( void )
 
 /* ---------------------------------------------------- */
 double Distance(double Lat1, double Long1, double Lat2, double Long2)
-{  
+{
     double dLat;
     double dLong;
     double d;
@@ -599,15 +599,15 @@ double Bearing(double Lat1, double Long1, double Lat2, double Long2)
     y = cos(Lat2) * sin(dLong) * cos(Lat1);
     ay = fabs(y);
     psi = atan2(ay, ax);
-    if (x < 0.0) 
+    if (x < 0.0)
     {
         psi = M_PI - psi;
     }
-    if (y < 0.0) 
+    if (y < 0.0)
     {
         return -psi;
-    } 
-    else 
+    }
+    else
     {
         return psi;
     }
@@ -615,7 +615,7 @@ double Bearing(double Lat1, double Long1, double Lat2, double Long2)
 
 /* ----------------------------------------- */
 int socket_init(void)
-{   
+{
     return EXIT_SUCCESS;
 }
 
@@ -623,14 +623,14 @@ int socket_init(void)
 int socket_get_data(void)
 {
     float q;
-  
+
     double x;
     double y;
     double z;
     double Pitch;
     double Roll;
     double Yaw;
-  
+
     double a;
     double d;
     double b;
@@ -640,35 +640,35 @@ int socket_get_data(void)
 
     double px, py, pz;
     double h, p, r;
-    
+
     IosDefn_RestoreVectorRecord rvr = IosPkt.RestoreVector;
-    
+
     Pitch = rvr.Pitch;
     Roll = rvr.Roll;
     Yaw = rvr.Yaw;
-    
+
     Model_SetQuaternions(Pitch, Roll, Yaw);
 	SetDCM();
     SetEyePosition();
-	
-	//printf("lat=%f long=%f pitch=%f roll=%f yaw=%f\n", degrees(rvr.Latitude), degrees(rvr.Longitude), degrees(rvr.Pitch), degrees(rvr.Roll), degrees(rvr.Yaw)); // *** 
+
+	//printf("lat=%f long=%f pitch=%f roll=%f yaw=%f\n", degrees(rvr.Latitude), degrees(rvr.Longitude), degrees(rvr.Pitch), degrees(rvr.Roll), degrees(rvr.Yaw)); // ***
 
     //rvr.CurrentRunway = 0; // ***
 
-    if (rvr.CurrentRunway > 0) 
+    if (rvr.CurrentRunway > 0)
     {
         double rqdm = rads(79.0);
         double rlat = rads(51.145861);
         double rlon = rads(-0.206831);
-        
+
         q = normalise(rqdm + (double) (rads(-2.0)) );
         d = Distance(rvr.Latitude, rvr.Longitude, (double) rlat, (double) rlon);
         b = Bearing(rvr.Latitude, rvr.Longitude, (double) rlat, (double) rlon);
         x = -d * sin(b) + (double) Model_Ey;
         y = -d * cos(b) + (double) Model_Ex;
         z = -(rvr.Pz + Model_Ez) - Metres(195.0);
-    } 
-    else 
+    }
+    else
     {
         Pitch = 0.0;
 		Roll = 0.0;
@@ -678,7 +678,7 @@ int socket_get_data(void)
         z = -Model_Ez;
         q = 0.0;
     }
-    
+
     Targets[0].x = x;
     Targets[0].y = y;
     Targets[0].z = z;
@@ -704,7 +704,7 @@ int socket_get_data(void)
 
     SetTime(12.0, 0.0);  /* midday */
     set_vis(35000.0);    /* 35 Km */
-    
+
     return EXIT_SUCCESS;
 }
 
