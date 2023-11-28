@@ -52,6 +52,8 @@
 #include <osg/Billboard>
 #include <osg/BlendFunc>
 #include <osg/AlphaFunc>
+#include <osg/os_utils>
+#include <osgDB/FileNameUtils>
 
 /*
     Flt Sim headers. Note, change default packing on Windows for UDP structs arriving from Linux.
@@ -411,6 +413,16 @@ void setpath(char *str)
 
 int SelectDatabase ( char *argv[] )
 {
+    std::string databasePrefix = osg::getEnvVar("SIMDATA_PATH");
+    if (databasePrefix.empty())
+    {
+        #ifdef WIN32
+        databasePrefix = "c:\\SIM-DATA\\";
+        #else
+        databasePrefix = "/usr/share/SIM-DATA/";
+        #endif
+    }
+
     if ( !strcmp ( argv[1], "bristol" ) )
     {
         RunwayX  =        0.0;
@@ -419,15 +431,9 @@ int SelectDatabase ( char *argv[] )
         RunwayRotation =  0.0;			/* 360 degrees */
 
         setname("long_bristol.flt");
-        #ifdef WIN32
-          pathList.push_back("c:\\SIM-DATA\\databases\\long_bristol\\flt_files");
-          pathList.push_back("c:\\SIM-DATA\\databases\\long_bristol\\models");
-          pathList.push_back("c:\\SIM-DATA\\long_bristol\\texture");
-        #else
-          pathList.push_back("/usr/share/SIM-DATA/databases/long_bristol/flt_files");
-          pathList.push_back("/usr/share/SIM-DATA/databases/long_bristol/models");
-          pathList.push_back("/usr/share/SIM-DATA/databases/long_bristol/texture");
-        #endif
+        pathList.push_back(osgDB::concatPaths(databasePrefix, "databases/long_bristol/flt_files"));
+        pathList.push_back(osgDB::concatPaths(databasePrefix, "databases/long_bristol/models"));
+        pathList.push_back(osgDB::concatPaths(databasePrefix, "databases/long_bristol/texture"));
     }
     else if ( !strcmp ( argv[1], "hong_kong" ) )
     {
@@ -436,11 +442,7 @@ int SelectDatabase ( char *argv[] )
         RunwayZ  =        0.0;
         RunwayRotation =  1.815142422;		/* 104 degrees */
         setname("hk_sgi_demo.flt");
-        #ifdef WIN32
-          pathList.push_back("c:\\SIM-DATA\\databases\\hong_kong");
-        #else
-          pathList.push_back("/usr/share/SIM-DATA/databases/hong_kong");
-        #endif
+        pathList.push_back(osgDB::concatPaths(databasePrefix, "databases/hong_kong"));
     }
     else if ( !strcmp ( argv[1], "manchester" ) )
     {
@@ -450,27 +452,24 @@ int SelectDatabase ( char *argv[] )
         RunwayRotation = 0.0;
 
         setname("aerodrome-terrain.osgt");
-        #ifdef WIN32
-          pathList.push_back("c:\\SIM-DATA\\databases\\manchester");
-        #else
-          pathList.push_back("/usr/share/SIM-DATA/databases/manchester");
-        #endif
+        pathList.push_back(osgDB::concatPaths(databasePrefix, "databases/manchester"));
     }
     else
     {
         return -1;
     }
 
-    #ifdef WIN32
-      pathList.push_back("c:\\SIM-DATA\\multigen");
-      pathList.push_back("c:\\SIM-DATA\\multigen\\models");
-      pathList.push_back("c:\\SIM-DATA\\multigen\\texture");
-    #else
-      pathList.push_back("/usr/share/SIM-DATA/multigen");
-      pathList.push_back("/usr/share/SIM-DATA/multigen/models");
-      pathList.push_back("/usr/share/SIM-DATA/multigen/texture");
-    #endif
+    pathList.push_back(osgDB::concatPaths(databasePrefix, "multigen"));
+    pathList.push_back(osgDB::concatPaths(databasePrefix, "multigen/models"));
+    pathList.push_back(osgDB::concatPaths(databasePrefix, "multigen/texture"));
 
+#if 1
+    std::cout<<"SelectDatabase() databasePrefix = "<<databasePrefix<<std::endl;
+    for(auto& path : pathList)
+    {
+        std::cout<<" pathList "<<path<<std::endl;
+    }
+#endif
     return 0;
 }
 
