@@ -276,8 +276,9 @@ int main (int argc, char* argv[])
     // This stops the band of different colour (clear colour) showing through.
     osg::ref_ptr<osg::PositionAttitudeTransform> SkyBoxXForm = new osg::PositionAttitudeTransform();
     SkyBoxXForm->addChild(SkyBoxNode.get());
-    osg::Vec3 SkyBoxPosit(0,0,-10000);
-    SkyBoxXForm->setPosition( SkyBoxPosit );
+    osg::Vec3 SkyBoxPos(RunwayX, RunwayY, -1500.0);
+    SkyBoxXForm->setPosition( SkyBoxPos );
+    SkyBoxXForm->setScale(osg::Vec3(5.0,5.0,5.0));
 
     // Create blue sky - sets the clear buffer bits
     osg::ref_ptr<osg::ClearNode> backdrop = new osg::ClearNode;
@@ -387,6 +388,10 @@ int main (int argc, char* argv[])
         osg::Matrixd i = myCameraMatrix.inverse(myCameraMatrix);
         osg::Matrixd xxx = osg::Matrixd::rotate( -M_PI*0.5, osg::Vec3(1,0,0) );
         viewer.getCamera()->setViewMatrix(i * xxx);
+
+        // Position the skybox at the same position as the aircraft, but without any rotation
+        SkyBoxPos.set( vecPosAircraft.x(), vecPosAircraft.y(), -1500);
+        SkyBoxXForm->setPosition( SkyBoxPos );
 
         // Fire off the cull and draw traversals of the scene
         viewer.frame();
