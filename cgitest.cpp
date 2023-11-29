@@ -27,6 +27,7 @@
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
+#define _USE_MATH_DEFINES
 #include <cmath>
 #include <iostream>
 
