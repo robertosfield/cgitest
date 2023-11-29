@@ -264,21 +264,12 @@ int main (int argc, char* argv[])
         exit(1);
     }
 
-    // Using a sky box until I get fog working on clear buffer properly
-    osg::ref_ptr<osg::Node> SkyBoxNode = osgDB::readNodeFile("models/skyb.ac");
-    if (!SkyBoxNode)
-    {
-        std::cerr << "Failed to load skybox database!\n";
-        exit(1);
-    }
-
-    // Set up a transform node to move the surrounding skybox a little lower
-    // This stops the band of different colour (clear colour) showing through.
+    // Skydome
     osg::ref_ptr<osg::PositionAttitudeTransform> SkyBoxXForm = new osg::PositionAttitudeTransform();
-    SkyBoxXForm->addChild(SkyBoxNode.get());
+    SkyBoxXForm->addChild(SkyNode.get());
     osg::Vec3 SkyBoxPos(RunwayX, RunwayY, -1500.0);
     SkyBoxXForm->setPosition( SkyBoxPos );
-    SkyBoxXForm->setScale(osg::Vec3(5.0,5.0,5.0));
+    SkyBoxXForm->setScale(osg::Vec3(2.0, 2.0, 2.0));  /* was 5.0 */
 
     // Create blue sky - sets the clear buffer bits
     osg::ref_ptr<osg::ClearNode> backdrop = new osg::ClearNode;
@@ -286,7 +277,8 @@ int main (int argc, char* argv[])
 
     // Enable fogging
     fog->setMode(osg::Fog::EXP);
-    fog->setDensity(0.00005f);
+    //fog->setDensity(0.00005f);
+    fog->setDensity(2.0/35000.0);
     fog->setColor(osg::Vec4d(0.8,0.8,0.8,1.0));
     fog->setStart(0.0f);     // only for LINEAR fog
     fog->setEnd(visibility); // only for LINEAR fog
@@ -308,7 +300,6 @@ int main (int argc, char* argv[])
 
     SceneRoot->addChild(SkyBoxXForm.get());
     SceneRoot->addChild(backdrop.get());
-    SceneRoot->addChild(SkyNode.get());
     SceneRoot->addChild(LitObjects.get());
 
     // Initialise the camera with some default settings
@@ -390,7 +381,7 @@ int main (int argc, char* argv[])
         viewer.getCamera()->setViewMatrix(i * xxx);
 
         // Position the skybox at the same position as the aircraft, but without any rotation
-        SkyBoxPos.set( vecPosAircraft.x(), vecPosAircraft.y(), -1500);
+        SkyBoxPos.set( vecPosAircraft.x(), vecPosAircraft.y(), -1500.0);
         SkyBoxXForm->setPosition( SkyBoxPos );
 
         // Fire off the cull and draw traversals of the scene
@@ -551,7 +542,7 @@ void set_vis( float vis )
     fog->setEnd(vis);    */
 
 /*  For exp fog....    */
-    density = 3.2f/vis;
+    density = 2.0f/vis;
     fog->setDensity(density);
 
 /*   For exp2 fog....
