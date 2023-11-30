@@ -490,6 +490,10 @@ void SetTime( float hour, float angle )
         d = 1.0 - fabs(12.0 - hour) / 6.0;
 
 
+#if 1
+    sunLight->getLight()->setAmbient( osg::Vec4( d, d, 0.8f*d, 1.0f ) );
+    sunLight->getLight()->setDiffuse( osg::Vec4( d, d, 0.8f*d, 1.0f ) );
+#else
     osg::ref_ptr<osg::Light> UpdatedLight = sunLight->getLight();
 
     // Alter position of sun?
@@ -503,6 +507,7 @@ void SetTime( float hour, float angle )
     sunLight->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::ON | osg::StateAttribute::OVERRIDE);
 
     fog->setColor(osg::Vec4d(d,d,d,1.0f));
+#endif
 }
 
 /* ---------------------------------------------------- */
