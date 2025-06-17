@@ -133,8 +133,8 @@ void               Model_SetQuaternions(float pitch, float roll, float yaw);
     Global data
 */
 
-const double TWOPI  = (M_PI * 2.0);
-const double ONERAD = (180.0 / M_PI);
+const double TWOPI  = (osg::PI * 2.0);
+const double ONERAD = (180.0 / osg::PI);
 
 // Database coordinates
 static double RunwayX;
@@ -377,7 +377,7 @@ int main (int argc, char* argv[])
             osg::DegreesToRadians(vecAttAircraft.x()), osg::Vec3(0,0,1) ); // yaw
         myCameraMatrix = (cameraOffsetRotation * cameraRotation) * cameraTrans;
         osg::Matrixd i = myCameraMatrix.inverse(myCameraMatrix);
-        osg::Matrixd xxx = osg::Matrixd::rotate( -M_PI*0.5, osg::Vec3(1,0,0) );
+        osg::Matrixd xxx = osg::Matrixd::rotate( -osg::PI*0.5, osg::Vec3(1,0,0) );
         viewer.getCamera()->setViewMatrix(i * xxx);
 
         // Position the skybox at the same position as the aircraft, but without any rotation
@@ -528,13 +528,13 @@ float rads( float d )     /* degrees -> radians */
 float normalise(float a)
 {
     double x = (double) a;
-    double r = fmod(x + M_PI, TWOPI);
+    double r = fmod(x + osg::PI, TWOPI);
 
     if (r < 0.0)
     {
         r += TWOPI;
     }
-    return (float) (r - M_PI);
+    return (float) (r - osg::PI);
 }
 
 /* ---------------------------------------------------- */
@@ -601,7 +601,7 @@ double Bearing(double Lat1, double Long1, double Lat2, double Long2)
     psi = atan2(ay, ax);
     if (x < 0.0)
     {
-        psi = M_PI - psi;
+        psi = osg::PI - psi;
     }
     if (y < 0.0)
     {
